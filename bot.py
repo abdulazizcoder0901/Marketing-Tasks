@@ -62,6 +62,12 @@ def save_state(state: dict) -> None:
     STATE_FILE.write_text(json.dumps(state))
 
 
+def notify_chats(state: dict) -> set[int]:
+    # Xostingda fayl qayta ishga tushganda o'chib ketishi mumkin, shuning uchun
+    # ruxsat berilgan foydalanuvchilarga (shaxsiy chat ID = user ID) doim yuboramiz.
+    return set(state["chats"]) | ALLOWED_IDS
+
+
 def today() -> date:
     return datetime.now(TZ).date()
 
@@ -309,7 +315,7 @@ async def job_check_new(context: ContextTypes.DEFAULT_TYPE):
         if task.status == notion.status_done:
             continue
         text, kb = task_card(task)
-        for chat_id in state["chats"]:
+        for chat_id in notify_chats(state):
             await context.bot.send_message(chat_id, "🆕 Sizga yangi task biriktirildi!\n\n" + text,
                                            parse_mode=ParseMode.HTML, reply_markup=kb)
 
@@ -322,7 +328,7 @@ async def job_digest(context: ContextTypes.DEFAULT_TYPE):
     tasks = await notion.my_tasks(NOTION_USER_ID)
     urgent = [t for t in tasks if t.due and t.due <= today()]
     text, kb = list_view(urgent, f"☀️ <b>Xayrli tong!</b> Faol tasklar: {len(tasks)}\n🔥 <b>Bugungi</b>")
-    for chat_id in state["chats"]:
+    for chat_id in notify_chats(state):
         await context.bot.send_message(chat_id, text, parse_mode=ParseMode.HTML, reply_markup=kb)
 
 

@@ -46,3 +46,9 @@ Birinchi marta:
 3. Botni qayta ishga tushiring va `/start` ni yana bosing.
 
 Bot 24/7 ishlashi uchun uni server/VPS'da (yoki Railway, Render kabi xizmatlarda) ishga tushiring.
+
+## Terminalsiz ishga tushirish (Railway)
+
+1. https://railway.com/new/github → GitHub bilan kiring → `Marketing-Tasks` reposini tanlang.
+2. Servis ochilgach **Variables** → **Raw Editor** ga `.env.example` dagi qiymatlarni to'ldirib qo'ying → **Deploy**.
+3. **Deployments → View logs** da `Notion bazasi ulandi` chiqsa, bot ishlayapti.
