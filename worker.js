@@ -1,6 +1,7 @@
 // IELTS ZONE — Notion tasklari uchun Telegram bot (Cloudflare Workers, bepul tarif)
 //
 // - Sizga Notion'da yangi task berilsa, Telegram'ga butun mazmuni bilan keladi
+// - "▶️ Boshladim" tugmasi statusni In progress qiladi, keyin "✅ Bajarildi" chiqadi
 // - "✅ Bajarildi" tugmasi: Notion'da statusni o'zgartiradi va task bergan
 //   odamni izohda belgilaydi (mention) — unga Notion'da notification boradi
 // - Deadline yaqinlashganda va o'tib ketganda eslatadi, har kuni ertalab xulosa
@@ -18,6 +19,7 @@ function cfg(env) {
     due: env.PROP_DUE || "Due date",
     reporter: String(env.PROP_REPORTER || "").trim(),
     done: env.STATUS_DONE || "Done",
+    progress: env.STATUS_PROGRESS || "In progress",
     tz: env.TIMEZONE || "Asia/Tashkent",
     dueTime: env.DEFAULT_DUE_TIME || "18:00",
     remind: list(env.REMIND_HOURS || "24,3").map(Number).filter((n) => n > 0).sort((a, b) => b - a),
@@ -416,12 +418,21 @@ async function sendChunks(env, chat_id, lines, reply_markup) {
     await send(env, chat_id, msgs[i], i === msgs.length - 1 && reply_markup ? { reply_markup } : {});
 }
 
-const taskKb = (id) => ({
-  inline_keyboard: [[
-    { text: "✅ Bajarildi", callback_data: `d:${short(id)}` },
-    { text: "🔗 Notion'da ochish", url: notionUrl(id) },
-  ]],
+const statusOf = (env, page) => {
+  const p = page.properties?.[cfg(env).status];
+  return p?.status?.name || p?.select?.name || "";
+};
+const inProgress = (env, page) => statusOf(env, page).trim().toLowerCase() === cfg(env).progress.trim().toLowerCase();
+
+// Task boshlanmagan bo'lsa "▶️ Boshladim", In progress bo'lsa "✅ Bajarildi" tugmasi
+const actionBtn = (id, started) =>
+  started
+    ? { text: "✅ Bajarildi", callback_data: `d:${short(id)}` }
+    : { text: "▶️ Boshladim", callback_data: `p:${short(id)}` };
+const kbFor = (id, started) => ({
+  inline_keyboard: [[actionBtn(id, started), { text: "🔗 Notion'da ochish", url: notionUrl(id) }]],
 });
+const taskKb = (env, page) => kbFor(page.id, inProgress(env, page));
 
 async function hookSecret(env) {
   const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(env.TELEGRAM_BOT_TOKEN));
@@ -433,7 +444,8 @@ async function hookSecret(env) {
 const HELP = `🤖 <b>IELTS ZONE — Tasks bot</b>
 
 Sizga Notion'da task berilsa, shu yerga to'liq mazmuni bilan keladi.
-Ish tugagach <b>✅ Bajarildi</b> tugmasini bosing: Notion'da status o'zgaradi va task bergan odamga xabar boradi.
+Ishni boshlaganda <b>▶️ Boshladim</b> ni bosing — Notion'da status <i>In progress</i> bo'ladi.
+Ish tugagach <b>✅ Bajarildi</b> ni bosing — status <i>Done</i> bo'ladi va task bergan odamga Notion'da xabar boradi.
 
 /tasks — barcha faol tasklarim
 /today — muddati o'tgan, bugungi va ertangi tasklar
@@ -446,9 +458,9 @@ async function cmdTasks(env, chat) {
   const lines = [`📋 <b>Faol tasklar: ${tasks.length} ta</b>`, ""];
   tasks.forEach((t, i) => {
     const due = dueOf(env, t);
-    lines.push(`${i + 1}. ${esc(titleOf(t))}${due ? `\n     📅 ${esc(dueText(env, due))}` : ""}`);
+    lines.push(`${i + 1}. ${inProgress(env, t) ? "🔵" : "⚪"} ${esc(titleOf(t))}${due ? `\n     📅 ${esc(dueText(env, due))}` : ""}`);
   });
-  lines.push("", "Batafsil ko'rish uchun tugmani bosing 👇");
+  lines.push("", "🔵 — jarayonda, ⚪ — boshlanmagan", "Batafsil ko'rish uchun tugmani bosing 👇");
   const kb = { inline_keyboard: tasks.slice(0, 40).map((t, i) => [{ text: `${i + 1}. ${titleOf(t).slice(0, 50)}`, callback_data: `v:${short(t.id)}` }]) };
   return sendChunks(env, chat, lines, kb);
 }
@@ -518,15 +530,19 @@ async function onMessage(env, m) {
   }
 }
 
+async function setStatus(env, id, name) {
+  const c = cfg(env);
+  const s = await schema(env);
+  return notion(env, `/pages/${id}`, {
+    method: "PATCH",
+    body: { properties: { [c.status]: { [s.statusType]: { name } } } },
+  });
+}
+
 // "Bajarildi": statusni o'zgartirish + task bergan odamni izohda belgilash (Notion notification)
 async function markDone(env, id) {
   const c = cfg(env);
-  const s = await schema(env);
-  const page = await notion(env, `/pages/${id}`);
-  await notion(env, `/pages/${id}`, {
-    method: "PATCH",
-    body: { properties: { [c.status]: { [s.statusType]: { name: c.done } } } },
-  });
+  const page = await setStatus(env, id, c.done);
   const targets = (await giversOf(env, page)).filter((g) => short(g.id) !== short(c.me));
   const rich_text = [];
   for (const g of targets)
@@ -554,7 +570,7 @@ async function onCallback(env, q) {
     if (act === "v") {
       await answer();
       const page = await notion(env, `/pages/${id}`);
-      return await sendChunks(env, chat, await cardChunks(env, page), taskKb(id));
+      return await sendChunks(env, chat, await cardChunks(env, page), taskKb(env, page));
     }
     if (act === "d") {
       await answer("Rostdan ham bajarildimi?");
@@ -567,7 +583,13 @@ async function onCallback(env, q) {
     }
     if (act === "n") {
       await answer("Bekor qilindi");
-      return await setKb(taskKb(id));
+      return await setKb(kbFor(id, true));
+    }
+    if (act === "p") {
+      await answer("⏳ Notion'ga yozilmoqda...");
+      const page = await setStatus(env, id, c.progress);
+      await setKb(kbFor(id, true));
+      return await send(env, chat, `▶️ <b>${esc(titleOf(page))}</b> — ish boshlandi (${esc(c.progress)}).\nTugatgach <b>✅ Bajarildi</b> tugmasini bosing.`);
     }
     if (act === "y") {
       await answer("⏳ Notion'ga yozilmoqda...");
@@ -580,7 +602,7 @@ async function onCallback(env, q) {
     }
     return await answer();
   } catch (e) {
-    if (act === "y") await setKb(taskKb(id));
+    if (act === "y") await setKb(kbFor(id, true));
     return send(env, chat, `⚠️ Xatolik: ${esc(e.message)}`);
   }
 }
@@ -614,7 +636,7 @@ async function checkTasks(env) {
       if (!firstRun) {
         if (used > 25) continue; // qolganlari keyingi tekshiruvda (5 daqiqadan keyin) yuboriladi
         const lines = await cardChunks(env, t, "🆕 <b>Sizga yangi task berildi!</b>");
-        for (const chat of c.allowed) await sendChunks(env, chat, lines, taskKb(t.id));
+        for (const chat of c.allowed) await sendChunks(env, chat, lines, taskKb(env, t));
       }
       seen.add(id);
       if (due) for (const k of stages(t, due).all) rem[k] = 1;
@@ -628,7 +650,7 @@ async function checkTasks(env) {
     const kb = {
       inline_keyboard: [[
         { text: "📄 Batafsil", callback_data: `v:${id}` },
-        { text: "✅ Bajarildi", callback_data: `d:${id}` },
+        actionBtn(id, inProgress(env, t)),
       ]],
     };
     for (const chat of c.allowed) await send(env, chat, text, { reply_markup: kb });

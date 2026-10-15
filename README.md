@@ -5,6 +5,7 @@ Notion'da sizga berilgan tasklar Telegram'ga keladi. Bot **Cloudflare Workers**'
 ## Bot nima qiladi
 
 - 🆕 Sizga yangi task berilsa, Telegram'ga **to'liq mazmuni** bilan keladi: sarlavha, deadline, status, kim bergani, barcha ustunlar va sahifa ichidagi matn, checklist, rasm va fayllar.
+- ▶️ **Boshladim** tugmasi ishni boshlaganingizda Notion'da statusni `In progress` qiladi. Shundan keyin tugma **✅ Bajarildi** ga almashadi.
 - ✅ **Bajarildi** tugmasi (tasdiqlash bilan) quyidagilarni qiladi:
   - Notion'da statusni `Done` qiladi.
   - Task bergan odamni izohda **@mention** qiladi, shunda unga Notion'da notification boradi.
@@ -63,6 +64,7 @@ Buyruqlar: `/tasks` (barcha faol tasklar), `/today` (bugungi xulosa), `/users` (
 | `PROP_DUE` | `Due date` | Deadline ustuni (Date turi) |
 | `PROP_REPORTER` | — | Task bergan odam ustuni (Person). Bo'sh qolsa, sahifani yaratgan odam olinadi |
 | `STATUS_DONE` | `Done` | "Bajarildi" holatining nomi |
+| `STATUS_PROGRESS` | `In progress` | "Jarayonda" holatining nomi |
 | `REMIND_HOURS` | `24,3` | Deadline'dan necha soat oldin eslatish kerakligi |
 | `DEFAULT_DUE_TIME` | `18:00` | Deadline'da faqat sana bo'lsa, shu vaqt muddat deb hisoblanadi |
 | `TIMEZONE` | `Asia/Tashkent` | Vaqt mintaqasi |
