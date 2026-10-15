@@ -1,0 +1,14 @@
+// Cloudflare sozlamalari: GitHub'ga push qilinganda Workers Builds shu fayl bo'yicha
+// worker'ni avtomatik yangilaydi. Tokenlar (secrets) dashboard'da saqlanadi.
+{
+  "name": "ieltszone-tasks",
+  "main": "worker.js",
+  "compatibility_date": "2025-09-01",
+  // Dashboard'da kiritilgan Text o'zgaruvchilar (ALLOWED_TELEGRAM_IDS, NOTION_USER_ID...) o'chmasin
+  "keep_vars": true,
+  "kv_namespaces": [{ "binding": "KV", "id": "eb0f6f5a5f5e4a5bbc63ad2d36bd99ff" }],
+  "triggers": {
+    // har 5 daqiqada yangi tasklar va eslatmalar; 04:00 UTC = 09:00 Toshkent — ertalabki xulosa
+    "crons": ["*/5 * * * *", "0 4 * * *"]
+  }
+}

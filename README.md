@@ -72,3 +72,7 @@ Buyruqlar: `/tasks` (barcha faol tasklar), `/today` (bugungi xulosa), `/users` (
 ## Bepul tarif cheklovlari
 
 Cloudflare bepul tarifida kuniga 100 000 so'rov va 1 000 ta KV yozish mumkin. Bu bot kuniga taxminan 300 ta tekshiruv qiladi, shuning uchun limitlar bemalol yetadi. Karta talab qilinmaydi.
+
+## Avtomatik yangilanish (Workers Builds)
+
+Worker GitHub'ga ulangan bo'lsa, `claude/modest-cray-l8kziv` branchiga har bir push qilinganda Cloudflare kodni o'zi yangilaydi. Sozlamalar `wrangler.jsonc` faylida: worker nomi, KV va cron'lar. Tokenlar va Text o'zgaruvchilar dashboard'da qoladi (`keep_vars`).
