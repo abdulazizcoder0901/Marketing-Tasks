@@ -39,7 +39,7 @@ async function notion(env, path, { method = "GET", body } = {}) {
     const r = await fetch("https://api.notion.com/v1" + path, {
       method,
       headers: {
-        Authorization: `Bearer ${env.NOTION_TOKEN}`,
+        Authorization: `Bearer ${String(env.NOTION_TOKEN || "").trim()}`,
         "Notion-Version": NOTION_VERSION,
         "Content-Type": "application/json",
       },
@@ -379,7 +379,7 @@ async function cardChunks(env, page, header = "") {
 
 async function tg(env, method, payload) {
   used++;
-  const r = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/${method}`, {
+  const r = await fetch(`https://api.telegram.org/bot${String(env.TELEGRAM_BOT_TOKEN || "").trim()}/${method}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
