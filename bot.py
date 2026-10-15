@@ -42,7 +42,7 @@ notion = Notion(
     database_id=os.environ["NOTION_DATABASE_ID"],
     prop_status=os.getenv("PROP_STATUS", "Status"),
     prop_assignee=os.getenv("PROP_ASSIGNEE", "Assignee"),
-    prop_due=os.getenv("PROP_DUE", "Due"),
+    prop_due=os.getenv("PROP_DUE", "Due date"),
     status_done=os.getenv("STATUS_DONE", "Done"),
 )
 

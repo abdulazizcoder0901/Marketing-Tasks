@@ -22,7 +22,7 @@ Notion'da sizga biriktirilgan tasklarni Telegram botda ko'rish va boshqarish.
 ### 2. Notion integratsiya
 1. https://www.notion.so/my-integrations → **New integration** → secret'ni oling.
 2. Notion'dagi tasklar bazasini oching → `•••` → **Connections** → integratsiyangizni qo'shing.
-3. Baza linkidan ID'ni oling: `notion.so/<workspace>/`**`1a2b3c...`**`?v=...`
+3. IELTS ZONE sahifasidagi **Tasks** jadvalini **↗** bilan to'liq ochib, linkdan ID'ni oling: `notion.so/`**`1a2b3c...`**`?v=...`
 
 Bazada quyidagi ustunlar bo'lishi kerak (nomlarini `.env` da o'zgartirish mumkin):
 
@@ -31,7 +31,7 @@ Bazada quyidagi ustunlar bo'lishi kerak (nomlarini `.env` da o'zgartirish mumkin
 | Task nomi | Title | avtomatik aniqlanadi |
 | Status | Status yoki Select | `PROP_STATUS` |
 | Assignee | Person | `PROP_ASSIGNEE` |
-| Due | Date | `PROP_DUE` |
+| Due date | Date | `PROP_DUE` |
 
 ### 3. Ishga tushirish
 ```bash
