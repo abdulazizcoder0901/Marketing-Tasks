@@ -47,8 +47,18 @@ Birinchi marta:
 
 Bot 24/7 ishlashi uchun uni server/VPS'da (yoki Railway, Render kabi xizmatlarda) ishga tushiring.
 
-## Terminalsiz ishga tushirish (Railway)
+## Bepul ishga tushirish — Cloudflare Workers (terminalsiz)
 
-1. https://railway.com/new/github → GitHub bilan kiring → `Marketing-Tasks` reposini tanlang.
-2. Servis ochilgach **Variables** → **Raw Editor** ga `.env.example` dagi qiymatlarni to'ldirib qo'ying → **Deploy**.
-3. **Deployments → View logs** da `Notion bazasi ulandi` chiqsa, bot ishlayapti.
+`worker.js` — botning Cloudflare versiyasi. Hammasi brauzerda qilinadi, bepul, karta kerak emas.
+
+1. https://dash.cloudflare.com/sign-up — ro'yxatdan o'ting.
+2. **Workers & Pages → Create → Start with Hello World → Deploy**, keyin **Edit code**:
+   eski kodni o'chirib, `worker.js` ni to'liq nusxalab qo'ying → **Deploy**.
+3. **Settings → Variables and Secrets → Add**:
+   - `TELEGRAM_BOT_TOKEN` (Secret), `NOTION_TOKEN` (Secret)
+   - `NOTION_DATABASE_ID` = IELTS ZONE Tasks bazasi ID'si
+4. **Storage & Databases → KV → Create** (nomi ixtiyoriy), so'ng worker'da
+   **Settings → Bindings → Add → KV namespace**: Variable name = `KV`.
+5. **Settings → Trigger events → Cron Triggers**: `*/5 * * * *` va `0 4 * * *` (09:00 Toshkent).
+6. Brauzerda `https://<worker-nomi>.<akkaunt>.workers.dev/setup` ni oching — ikkita ✅ chiqishi kerak.
+7. Telegram'da `/start` va `/users` → `ALLOWED_TELEGRAM_IDS` va `NOTION_USER_ID` ni Variables'ga qo'shing.
