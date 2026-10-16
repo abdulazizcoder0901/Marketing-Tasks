@@ -8,7 +8,10 @@
   "keep_vars": true,
   "kv_namespaces": [{ "binding": "KV", "id": "eb0f6f5a5f5e4a5bbc63ad2d36bd99ff" }],
   "triggers": {
-    // har 5 daqiqada yangi tasklar va eslatmalar; 04:00 UTC = 09:00 Toshkent — ertalabki xulosa
-    "crons": ["*/5 * * * *", "0 4 * * *"]
+    // Vaqtlar UTC'da (Toshkent = UTC+5):
+    // - kunduzi 09:00–20:40 har 20 daqiqada yangi tasklar va eslatmalar
+    // - kechasi 21:00, 23:00, 01:00, 03:00, 05:00, 07:00 da (har 2 soatda)
+    // - 09:00 da ertalabki xulosa
+    "crons": ["*/20 4-15 * * *", "0 16,18,20,22,0,2 * * *", "0 4 * * *"]
   }
 }

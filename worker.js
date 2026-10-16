@@ -634,7 +634,7 @@ async function checkTasks(env) {
     const due = dueOf(env, t);
     if (!seen.has(id)) {
       if (!firstRun) {
-        if (used > 25) continue; // qolganlari keyingi tekshiruvda (5 daqiqadan keyin) yuboriladi
+        if (used > 25) continue; // qolganlari keyingi tekshiruvda yuboriladi
         const lines = await cardChunks(env, t, "🆕 <b>Sizga yangi task berildi!</b>");
         for (const chat of c.allowed) await sendChunks(env, chat, lines, taskKb(env, t));
       }
@@ -713,6 +713,9 @@ async function setup(env, origin) {
   return lines.join("\n");
 }
 
+// Ertalabki xulosa cron'i (04:00 UTC = 09:00 Toshkent); qolgan cron'lar yangi tasklarni tekshiradi
+const DIGEST_CRON = "0 4 * * *";
+
 export default {
   async fetch(request, env) {
     used = 0;
@@ -737,7 +740,7 @@ export default {
 
   async scheduled(event, env, ctx) {
     used = 0;
-    const job = event.cron.startsWith("*/") ? checkTasks(env) : digest(env, cfg(env).allowed);
+    const job = event.cron === DIGEST_CRON ? digest(env, cfg(env).allowed) : checkTasks(env);
     ctx.waitUntil(job.catch((e) => console.log("cron error:", e.stack || e.message)));
   },
 };

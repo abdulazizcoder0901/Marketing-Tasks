@@ -45,9 +45,10 @@ Buyruqlar: `/tasks` (barcha faol tasklar), `/today` (bugungi xulosa), `/users` (
 | `NOTION_USER_ID` | Text | 4-qadamda olinadi |
 
 4. **Storage & Databases → KV → Create** orqali KV yarating (nomi ixtiyoriy). Keyin worker'da **Settings → Bindings → Add → KV namespace** ni tanlab, **Variable name** ga `KV` deb yozing.
-5. **Settings → Trigger events → Cron Triggers** bo'limiga ikkita trigger qo'shing:
-   - `*/5 * * * *`: har 5 daqiqada yangi tasklar va deadline'larni tekshiradi.
-   - `0 4 * * *`: ertalabki xulosa (UTC 04:00 = Toshkent 09:00).
+5. Cron'lar `wrangler.jsonc` da sozlangan va avtomatik o'rnatiladi (vaqtlar UTC'da, Toshkent = UTC+5):
+   - `*/20 4-15 * * *`: kunduzi 09:00–21:00 oralig'ida har 20 daqiqada yangi tasklar va deadline'larni tekshiradi.
+   - `0 16,18,20,22,0,2 * * *`: kechasi 21:00 dan 09:00 gacha har 2 soatda tekshiradi.
+   - `0 4 * * *`: 09:00 da ertalabki xulosa yuboradi.
 6. Brauzerda `https://<worker-nomi>.<akkaunt>.workers.dev/setup` ni oching. Hamma qator ✅ bo'lishi kerak.
 
 ### 4. Ruxsat va ID'lar
