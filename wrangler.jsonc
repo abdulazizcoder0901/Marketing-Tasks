@@ -8,6 +8,9 @@
   "keep_vars": true,
   // Maxfiy bo'lmagan sozlamalar shu yerda: o'zgartirib push qilinsa, bot o'zi yangilanadi
   "vars": {
+    // Botdan foydalanishga ruxsat berilgan Telegram ID'lar (vergul bilan) va sizning Notion ID'ingiz
+    "ALLOWED_TELEGRAM_IDS": "2109900547",
+    "NOTION_USER_ID": "56292a1c-cb91-40d5-b99b-872d34093af4",
     "NOTION_DATABASE_ID": "3fa54e42ad658062bd42dd03577248c7",
     "PROP_ASSIGNEE": "Assign",
     "PROP_STATUS": "Status",
