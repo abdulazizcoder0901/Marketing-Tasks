@@ -723,6 +723,7 @@ export default {
     if (url.pathname === "/setup") {
       return new Response(await setup(env, url.origin), { headers: { "content-type": "text/plain; charset=utf-8" } });
     }
+    if (env.PAUSED === "true") return new Response("Bot to'xtatilgan ⏸", { headers: { "content-type": "text/plain; charset=utf-8" } });
     if (request.method === "POST" && url.pathname === "/telegram") {
       if (request.headers.get("X-Telegram-Bot-Api-Secret-Token") !== (await hookSecret(env)))
         return new Response("forbidden", { status: 403 });
@@ -739,6 +740,7 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
+    if (env.PAUSED === "true") return;
     used = 0;
     const job = event.cron === DIGEST_CRON ? digest(env, cfg(env).allowed) : checkTasks(env);
     ctx.waitUntil(job.catch((e) => console.log("cron error:", e.stack || e.message)));

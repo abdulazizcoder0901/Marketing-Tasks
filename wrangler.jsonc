@@ -8,6 +8,8 @@
   "keep_vars": true,
   // Maxfiy bo'lmagan sozlamalar shu yerda: o'zgartirib push qilinsa, bot o'zi yangilanadi
   "vars": {
+    // "true" — bot to'xtatilgan: tekshiruvlar va Telegram xabarlariga javob berilmaydi
+    "PAUSED": "true",
     // Botdan foydalanishga ruxsat berilgan Telegram ID'lar (vergul bilan) va sizning Notion ID'ingiz
     "ALLOWED_TELEGRAM_IDS": "2109900547",
     "NOTION_USER_ID": "56292a1c-cb91-40d5-b99b-872d34093af4",
@@ -27,6 +29,8 @@
     // - kunduzi 09:00–20:40 har 20 daqiqada yangi tasklar va eslatmalar
     // - kechasi 21:00, 23:00, 01:00, 03:00, 05:00, 07:00 da (har 2 soatda)
     // - 09:00 da ertalabki xulosa
-    "crons": ["*/20 4-15 * * *", "0 16,18,20,22,0,2 * * *", "0 4 * * *"]
+    // Bot to'xtatilgan (PAUSED). Qayta yoqish uchun: PAUSED = "false" va cron'larni qaytarish:
+    // ["*/20 4-15 * * *", "0 16,18,20,22,0,2 * * *", "0 4 * * *"]
+    "crons": []
   }
 }
